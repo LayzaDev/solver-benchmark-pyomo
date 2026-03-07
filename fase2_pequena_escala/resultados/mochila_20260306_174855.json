@@ -1,0 +1,127 @@
+{
+  "problema": "mochila",
+  "tipo": "PI",
+  "n_repeticoes": 10,
+  "consistencia": {
+    "consistente": true,
+    "mensagem": "Todos os solvers encontraram a mesma solução ótima (valor 205, peso 4.0)."
+  },
+  "resultados": [
+    {
+      "solver": "GLPK",
+      "status": "optimal",
+      "valor_total": 205,
+      "selecionados": [
+        "Câmera",
+        "Garrafa",
+        "Fone",
+        "Carregador",
+        "Lanche",
+        "Casaco"
+      ],
+      "peso_total": 4.0,
+      "media": 4.571,
+      "desvio": 1.866,
+      "n": 10,
+      "tempos": [
+        2.931,
+        2.841,
+        2.792,
+        2.736,
+        4.166,
+        5.322,
+        7.63,
+        5.139,
+        4.627,
+        7.522
+      ]
+    },
+    {
+      "solver": "CBC",
+      "status": "optimal",
+      "valor_total": 205,
+      "selecionados": [
+        "Câmera",
+        "Garrafa",
+        "Fone",
+        "Carregador",
+        "Lanche",
+        "Casaco"
+      ],
+      "peso_total": 4.0,
+      "media": 22.73,
+      "desvio": 3.8,
+      "n": 10,
+      "tempos": [
+        20.512,
+        22.258,
+        17.392,
+        21.384,
+        26.557,
+        23.604,
+        21.901,
+        20.079,
+        31.176,
+        22.438
+      ]
+    },
+    {
+      "solver": "HIGHS",
+      "status": "optimal",
+      "valor_total": 205,
+      "selecionados": [
+        "Câmera",
+        "Garrafa",
+        "Fone",
+        "Carregador",
+        "Lanche",
+        "Casaco"
+      ],
+      "peso_total": 4.0,
+      "media": 8.054,
+      "desvio": 1.912,
+      "n": 10,
+      "tempos": [
+        7.278,
+        7.373,
+        6.856,
+        7.095,
+        6.878,
+        7.584,
+        8.145,
+        13.08,
+        6.984,
+        9.264
+      ]
+    },
+    {
+      "solver": "SCIP",
+      "status": "optimal",
+      "valor_total": 205,
+      "selecionados": [
+        "Câmera",
+        "Garrafa",
+        "Fone",
+        "Carregador",
+        "Lanche",
+        "Casaco"
+      ],
+      "peso_total": 4.0,
+      "media": 17.019,
+      "desvio": 2.384,
+      "n": 10,
+      "tempos": [
+        16.076,
+        17.982,
+        15.959,
+        21.103,
+        17.57,
+        20.938,
+        16.263,
+        14.707,
+        14.98,
+        14.611
+      ]
+    }
+  ]
+}

@@ -26,12 +26,21 @@ A modelagem é feita utilizando **Pyomo**, que atua como uma interface unificada
 
 ```
 fase1_verificacao/
-  verificacao_ambiente.py   — teste de sanidade: resolve min x + y nos 4 solvers
+  verificacao_ambiente.py        — teste de sanidade: resolve min x + y nos 4 solvers
 
 fase2_pequena_escala/
-  dieta.py                  — Problema da Dieta (PL): 12 alimentos × 6 nutrientes
-  mochila.py                — Problema da Mochila (PI): 8 itens, variáveis binárias
-  resultados/               — CSVs e JSONs gerados automaticamente
+  dieta.py                       — Problema da Dieta (PL): 12 alimentos × 6 nutrientes
+  mochila.py                     — Problema da Mochila (PI): 8 itens, variáveis binárias
+  resultados/                    — JSONs gerados automaticamente
+
+fase3_maior_escala/
+  gerar_instancias_dieta.py      — gera instâncias sintéticas da Dieta (100, 200, 500, 1000 alimentos)
+  dieta_grande.py                — benchmark da Dieta em escala maior
+  mochila_grande.py              — benchmark da Mochila com instâncias Pisinger (100–1000 itens)
+  gerar_graficos.py              — gera 7 gráficos PNG a partir dos JSONs de resultados
+  instancias/                    — instâncias sintéticas (dieta) e Pisinger (mochila)
+  resultados/                    — JSONs gerados automaticamente
+  graficos/                      — PNGs gerados automaticamente
 ```
 
 ---
@@ -47,6 +56,14 @@ fase2_pequena_escala/
 ## Instalação
 
 ### 1. Criar ambiente virtual
+
+No Windows, entre no WSL a partir da pasta do projeto:
+
+```bash
+wsl -d Ubuntu-24.04
+```
+
+Criar o ambiente virtual:
 
 ```bash
 python -m venv venv
@@ -147,16 +164,52 @@ python fase2_pequena_escala/dieta.py
 python fase2_pequena_escala/mochila.py
 ```
 
-Os resultados são salvos automaticamente em:
+Os resultados são salvos automaticamente em `fase2_pequena_escala/resultados/` no formato JSON.
 
+---
+
+## Execução dos Experimentos (Fase 3)
+
+### 1. Gerar instâncias sintéticas da Dieta
+
+```bash
+python fase3_maior_escala/gerar_instancias_dieta.py
 ```
-fase2_pequena_escala/resultados/
+
+Gera 4 instâncias em `fase3_maior_escala/instancias/dieta/`.
+
+### 2. Executar benchmarks
+
+**Problema da Dieta (PL)**
+```bash
+python fase3_maior_escala/dieta_grande.py
 ```
 
-Arquivos gerados:
+**Problema da Mochila (PI)**
 
-- **CSV** — resumo dos resultados
-- **JSON** — resultados detalhados
+As instâncias Pisinger devem estar em `fase3_maior_escala/instancias/knapsack-01-instances/`.
+
+```bash
+python fase3_maior_escala/mochila_grande.py
+```
+
+Os resultados são salvos em `fase3_maior_escala/resultados/` no formato JSON.
+
+### 3. Gerar gráficos
+
+```bash
+python fase3_maior_escala/gerar_graficos.py
+```
+
+Gera 7 gráficos PNG em `fase3_maior_escala/graficos/`:
+
+- `dieta_escalabilidade.png` — tempo médio por solver (PL)
+- `dieta_desvio.png` — desvio padrão por solver (PL)
+- `mochila_tipo1_escalabilidade.png` — tempo médio, instâncias não correlacionadas (PI)
+- `mochila_tipo1_desvio.png` — desvio padrão, instâncias não correlacionadas (PI)
+- `mochila_tipo2_escalabilidade.png` — tempo médio, instâncias fracamente correlacionadas (PI)
+- `mochila_tipo2_desvio.png` — desvio padrão, instâncias fracamente correlacionadas (PI)
+- `comparativo_pl_pi_1000.png` — comparativo PL vs PI a 1000 elementos
 
 ---
 
@@ -174,8 +227,8 @@ Os experimentos deste trabalho foram executados no seguinte ambiente:
 | SCIP                | 10.0.1                                 |
 | GLPK                | 5.0                                    |
 | CBC                 | 2.10.11                                |
-| pandas              | 3.0.1                                  |
-| scipy               | 1.17.1                                 |
+| matplotlib          | 3.10.8                                 |
+| numpy               | 2.4.2                                  |
 
 ---
 

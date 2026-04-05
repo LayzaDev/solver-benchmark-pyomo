@@ -1,9 +1,7 @@
 # Problema da Mochila — Programação Inteira (PI)
 #
-# Objetivo: selecionar itens para maximizar o valor total,
-# sem ultrapassar a capacidade máxima da mochila.
+# Objetivo: selecionar itens para maximizar o valor total, sem ultrapassar a capacidade máxima da mochila.
 
-import csv
 import json
 import os
 import statistics
@@ -16,7 +14,6 @@ PASTA_RESULTADOS = os.path.join(os.path.dirname(__file__), "resultados")
 N_REPETICOES = 10
 SOLVERS = ["glpk", "cbc", "highs", "scip"]
 
-# ==== DADOS DO PROBLEMA ====
 itens = ["Notebook", "Câmera", "Livro", "Garrafa", "Fone", "Carregador", "Lanche", "Casaco"]
 
 peso = {
@@ -44,7 +41,6 @@ valor = {
 capacidade = 4.0
 
 
-# ==== CONSTRUÇÃO DO MODELO ====
 def criar_modelo():
     modelo = pyo.ConcreteModel()
     modelo.x = pyo.Var(itens, domain=pyo.Binary)
@@ -150,28 +146,6 @@ def validar_consistencia(resultados):
 def salvar_resultados(resultados_detalhados, consistencia):
     os.makedirs(PASTA_RESULTADOS, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-    caminho_csv = os.path.join(PASTA_RESULTADOS, f"mochila_{timestamp}.csv")
-    with open(caminho_csv, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(
-            f,
-            fieldnames=[
-                "solver", "status", "valor_total", "peso_total",
-                "tempo_medio_ms", "desvio_ms", "n_repeticoes", "tempos_individuais"
-            ],
-        )
-        writer.writeheader()
-        for r in resultados_detalhados:
-            writer.writerow({
-                "solver": r["solver"],
-                "status": r["status"],
-                "valor_total": r["valor_total"] if r["valor_total"] is not None else "",
-                "peso_total": r["peso_total"] if r["peso_total"] is not None else "",
-                "tempo_medio_ms": r["media"] if r["media"] is not None else "",
-                "desvio_ms": r["desvio"],
-                "n_repeticoes": r["n"],
-                "tempos_individuais": r["tempos"],
-            })
 
     caminho_json = os.path.join(PASTA_RESULTADOS, f"mochila_{timestamp}.json")
     payload = {

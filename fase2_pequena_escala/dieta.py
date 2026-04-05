@@ -1,9 +1,7 @@
 # Problema da Dieta — Programação Linear (PL)
 #
-# Objetivo: encontrar a combinação de alimentos de menor custo que
-# satisfaça os requisitos nutricionais mínimos diários.
+# Objetivo: encontrar a combinação de alimentos de menor custo que satisfaça os requisitos nutricionais mínimos diários.
 
-import csv
 import json
 import os
 import statistics
@@ -17,7 +15,6 @@ N_REPETICOES = 10
 SOLVERS = ["glpk", "cbc", "highs", "scip"]
 TOLERANCIA_CUSTO = 1e-4
 
-# ==== DADOS DO PROBLEMA ====
 alimentos = [
     "Arroz", "Feijão", "Frango", "Brócolis", "Leite",
     "Ovo", "Batata", "Atum", "Cenoura", "Banana",
@@ -66,7 +63,6 @@ requisito_minimo = {
 }
 
 
-# ==== CONSTRUÇÃO DO MODELO ====
 def criar_modelo():
     modelo = pyo.ConcreteModel()
     modelo.x = pyo.Var(alimentos, domain=pyo.NonNegativeReals)
@@ -169,27 +165,6 @@ def validar_consistencia(resultados):
 def salvar_resultados(resultados_detalhados, consistencia):
     os.makedirs(PASTA_RESULTADOS, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-    caminho_csv = os.path.join(PASTA_RESULTADOS, f"dieta_{timestamp}.csv")
-    with open(caminho_csv, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(
-            f,
-            fieldnames=[
-                "solver", "status", "custo_total", "tempo_medio_ms",
-                "desvio_ms", "n_repeticoes", "tempos_individuais"
-            ],
-        )
-        writer.writeheader()
-        for r in resultados_detalhados:
-            writer.writerow({
-                "solver": r["solver"],
-                "status": r["status"],
-                "custo_total": r["custo_total"] if r["custo_total"] is not None else "",
-                "tempo_medio_ms": r["media"] if r["media"] is not None else "",
-                "desvio_ms": r["desvio"],
-                "n_repeticoes": r["n"],
-                "tempos_individuais": r["tempos"],
-            })
 
     caminho_json = os.path.join(PASTA_RESULTADOS, f"dieta_{timestamp}.json")
     payload = {

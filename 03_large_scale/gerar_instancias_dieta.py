@@ -1,10 +1,8 @@
 # Gerador de instâncias sintéticas para o Problema da Dieta
 #
-# Gera instâncias em escala crescente mantendo a estrutura do problema
-# original: minimizar custo satisfazendo requisitos nutricionais mínimos.
+# Gera instâncias em escala crescente mantendo a estrutura do problema original: minimizar custo satisfazendo requisitos nutricionais mínimos.
 #
-# As instâncias são geradas com dados nutricionais realistas baseados
-# em intervalos típicos de alimentos, com variação controlada por semente
+# As instâncias são geradas com dados nutricionais realistas baseados em intervalos típicos de alimentos, com variação controlada por semente
 # aleatória para garantir reprodutibilidade.
 
 import json
@@ -13,18 +11,32 @@ import random
 
 PASTA_SAIDA = os.path.join(os.path.dirname(__file__), "instancias", "dieta")
 
-# Configurações das instâncias a gerar
 # Cada tupla: (n_alimentos, n_nutrientes)
 TAMANHOS = [
-    (100,  10),
-    (200,  12),
-    (500,  15),
-    (1000, 15),
+    # Tipo A — poucas restrições (10 nutrientes)
+    (100,   10),
+    (500,   10),
+    (1000,  10),
+    (2000,  10),
+    (5000,  10),
+    (10000, 10),
+    # Tipo B — restrições médias (30 nutrientes)
+    (100,   30),
+    (500,   30),
+    (1000,  30),
+    (2000,  30),
+    (5000,  30),
+    (10000, 30),
+    # Tipo C — muitas restrições (50 nutrientes)
+    (100,   50),
+    (500,   50),
+    (1000,  50),
+    (2000,  50),
+    (5000,  50),
+    (10000, 50),
 ]
 
-# Semente fixa para reprodutibilidade dos experimentos
 SEMENTE = 42
-
 
 def gerar_instancia(n_alimentos, n_nutrientes, semente):
     """Gera uma instância sintética do Problema da Dieta.
@@ -38,7 +50,7 @@ def gerar_instancia(n_alimentos, n_nutrientes, semente):
     """
     rng = random.Random(semente)
 
-    alimentos = [f"alimento_{i+1:03d}" for i in range(n_alimentos)]
+    alimentos = [f"alimento_{i+1:05d}" for i in range(n_alimentos)]
     nutrientes = [f"nutriente_{j+1:02d}" for j in range(n_nutrientes)]
 
     custo = {a: round(rng.uniform(0.50, 5.00), 2) for a in alimentos}
@@ -78,7 +90,6 @@ def gerar_instancia(n_alimentos, n_nutrientes, semente):
     requisitos = {}
     for j, n in enumerate(nutrientes):
         soma_total = sum(tabela[a][n] for a in alimentos)
-        # Exige entre 5% e 15% da oferta total disponível
         fracao = rng.uniform(0.05, 0.15)
         requisitos[n] = round(soma_total * fracao, 2)
 
@@ -114,7 +125,7 @@ def executar():
         salvar_instancia(instancia, caminho)
 
         tamanho_kb = round(os.path.getsize(caminho) / 1024, 1)
-        print(f"  {nome:<30} {n_alimentos} alimentos × {n_nutrientes} nutrientes  [{tamanho_kb} KB]")
+        print(f"  {nome:<35} {n_alimentos:>6} alimentos × {n_nutrientes} nutrientes  [{tamanho_kb} KB]")
 
     print(f"\n{len(TAMANHOS)} instâncias geradas com sucesso.")
 

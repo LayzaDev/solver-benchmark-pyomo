@@ -1,10 +1,8 @@
-# Problema da Dieta — Fase 3: Instâncias de Maior Porte
+# Problema da Dieta — Fase 3: Instâncias de Maior Porte com Limite de Tempo
 #
-# Lê instâncias sintéticas geradas por gerar_instancias_dieta.py
-# e executa o benchmark comparativo entre os quatro solvers.
+# Lê instâncias sintéticas geradas por gerar_instancias_dieta.py e executa o benchmark comparativo entre os quatro solvers.
 #
-# Estrutura idêntica ao dieta.py da Fase 2, escalada para
-# instâncias maiores com verificação de consistência entre solvers.
+# Um limite de tempo é aplicado a todos os solvers para avaliar o comportamento sob restrição temporal, de forma consistente com o experimento da Mochila.
 
 import json
 import os
@@ -20,13 +18,40 @@ PASTA_RESULTADOS = os.path.join(os.path.dirname(__file__), "resultados")
 N_REPETICOES = 10
 SOLVERS = ["glpk", "cbc", "highs", "scip"]
 TOLERANCIA_CUSTO = 1e-4
+TEMPO_LIMITE = 5  # segundos
 
 INSTANCIAS = [
+    # Tipo A — 10 nutrientes
     "dieta_100x10.json",
-    "dieta_200x12.json",
-    "dieta_500x15.json",
-    "dieta_1000x15.json",
+    "dieta_500x10.json",
+    "dieta_1000x10.json",
+    "dieta_2000x10.json",
+    "dieta_5000x10.json",
+    "dieta_10000x10.json",
+    # Tipo B — 30 nutrientes
+    "dieta_100x30.json",
+    "dieta_500x30.json",
+    "dieta_1000x30.json",
+    "dieta_2000x30.json",
+    "dieta_5000x30.json",
+    "dieta_10000x30.json",
+    # Tipo C — 50 nutrientes
+    "dieta_100x50.json",
+    "dieta_500x50.json",
+    "dieta_1000x50.json",
+    "dieta_2000x50.json",
+    "dieta_5000x50.json",
+    "dieta_10000x50.json",
 ]
+
+
+def classificar_tipo(n_nutrientes):
+    if n_nutrientes <= 10:
+        return "sparse"
+    elif n_nutrientes <= 30:
+        return "medium"
+    else:
+        return "dense"
 
 
 def carregar_instancia(caminho):
@@ -35,7 +60,6 @@ def carregar_instancia(caminho):
 
 
 def criar_modelo(inst):
-    """Constrói o modelo de PL a partir dos dados da instância."""
     alimentos = inst["alimentos"]
     nutrientes = inst["nutrientes"]
     custo = inst["custo"]
@@ -82,9 +106,19 @@ def resolver_instancia(nome_solver, inst):
     if solver is None:
         return "solver_indisponivel", None, None
 
+    opcoes = {}
+    if nome_solver == "glpk":
+        opcoes["tmlim"] = TEMPO_LIMITE
+    elif nome_solver == "cbc":
+        opcoes["sec"] = TEMPO_LIMITE
+    elif nome_solver == "highs":
+        opcoes["time_limit"] = TEMPO_LIMITE
+    elif nome_solver == "scip":
+        opcoes["limits/time"] = TEMPO_LIMITE
+
     try:
         inicio = time.perf_counter()
-        resultado = solver.solve(modelo)
+        resultado = solver.solve(modelo, options=opcoes)
         fim = time.perf_counter()
     except Exception:
         return "erro_execucao", None, None
@@ -92,30 +126,35 @@ def resolver_instancia(nome_solver, inst):
     status = str(resultado.solver.termination_condition)
     tempo_ms = round((fim - inicio) * 1000, 3)
 
-    if status == "optimal":
+    try:
         custo_total = extrair_custo(modelo, inst["alimentos"], inst["custo"])
-    else:
+        if custo_total <= 0:
+            custo_total = None
+    except Exception:
         custo_total = None
 
     return status, custo_total, tempo_ms
 
 
 def executar_n_vezes(nome_solver, inst):
-    resolver_instancia(nome_solver, inst) # Warm-up descartado
+    resolver_instancia(nome_solver, inst)  # warm-up descartado
 
     tempos = []
-    custo_otimo = None   # valor de referência (primeiro ótimo encontrado)
-    execucoes_otimas = 0 # quantas das N execuções retornaram optimal
+    custo_otimo = None
+    execucoes_otimas = 0
     status = None
 
     for _ in range(N_REPETICOES):
-        status_exec, custo, tempo  = resolver_instancia(nome_solver, inst)
+        status_exec, custo, tempo = resolver_instancia(nome_solver, inst)
         if tempo is not None:
             tempos.append(tempo)
         if status_exec == "optimal":
             execucoes_otimas += 1
             if custo_otimo is None:
-                custo_otimo = custo  # guarda o valor de referência
+                custo_otimo = custo
+        elif custo is not None:
+            if custo_otimo is None or custo < custo_otimo:
+                custo_otimo = custo
         if status is None:
             status = status_exec
 
@@ -129,7 +168,6 @@ def executar_n_vezes(nome_solver, inst):
 
 
 def validar_consistencia(resultados):
-    """Verifica se todos os solvers encontraram o mesmo custo ótimo."""
     otimos = [r for r in resultados if r["status"] == "optimal"
               and r["custo_otimo"] is not None]
     if not otimos:
@@ -143,15 +181,23 @@ def validar_consistencia(resultados):
     if not consistentes:
         return False, "Os custos ótimos diferem entre os solvers."
 
+    n_otimos = len(otimos)
+    n_total = len(resultados)
+    if n_otimos < n_total:
+        return False, (
+            f"Apenas {n_otimos}/{n_total} solvers chegaram ao ótimo "
+            f"(custo ≈ R$ {referencia:.4f})."
+        )
+
     return True, f"Todos os solvers concordam com custo mínimo ≈ R$ {referencia:.4f}."
 
 
 def exibir_resultado(solver, status, custo_otimo, execucoes_otimas, media, desvio):
     custo_str = f"R$ {custo_otimo:.4f}" if custo_otimo is not None else "—"
     tempo_str = f"{media} ms" if media is not None else "—"
-    estab_str = f"{execucoes_otimas}/{N_REPETICOES} optimal"
+    estab_str = f"{execucoes_otimas}/{N_REPETICOES} ótimas"
     print(f"  {solver:<8} | status: {status:<20} | custo: {custo_str:<14} "
-          f"| tempo: {tempo_str:<12} ± {desvio} ms | estab: {estab_str}")
+          f"| tempo: {tempo_str:<12} ± {desvio} ms | {estab_str}")
 
 
 def salvar_resultados(todos_resultados):
@@ -170,6 +216,7 @@ def executar():
     print("PROBLEMA DA DIETA — Fase 3: Instâncias de Maior Porte")
     print("=" * 70)
     print(f"Repetições por solver por instância: {N_REPETICOES} (+ 1 warm-up)")
+    print(f"Limite de tempo por execução: {TEMPO_LIMITE}s")
     print()
 
     todos_resultados = []
@@ -185,9 +232,10 @@ def executar():
         inst = carregar_instancia(caminho)
         n_al = inst["n_alimentos"]
         n_nu = inst["n_nutrientes"]
+        tipo = classificar_tipo(n_nu)
 
         print(f"\nInstância: {nome}")
-        print(f"  Alimentos: {n_al} | Nutrientes: {n_nu}")
+        print(f"  Tipo: {tipo} | Alimentos: {n_al} | Nutrientes: {n_nu}")
         print(f"  {'-'*60}")
 
         resultados_instancia = []
@@ -200,6 +248,7 @@ def executar():
 
             registro = {
                 "instancia": nome,
+                "tipo": tipo,
                 "n_alimentos": n_al,
                 "n_nutrientes": n_nu,
                 "solver": nome_solver.upper(),

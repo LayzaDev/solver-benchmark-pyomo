@@ -2,8 +2,6 @@
 
 Este projeto faz parte de um Trabalho de Conclusão de Curso (TCC) desenvolvido na Universidade Federal de Uberlândia (UFU), como requisito para obtenção do título de Bacharel em Sistemas de Informação.
 
-O objetivo é comparar o desempenho de solvers open-source em problemas de otimização matemática.
-
 **Autora:** Layza Nauande de Paula Silva  
 **Orientador:** Prof. Dr. Paulo Henrique Ribeiro Gabriel  
 **Ano:** 2026

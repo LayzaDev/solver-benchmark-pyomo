@@ -61,9 +61,9 @@ Dois problemas, cada um com **18 instâncias** (3 tipos × 6 tamanhos), resolvid
 
 | Tipo | Nutrientes | Tamanhos (n_alimentos) |
 |------|-----------|------------------------|
-| A (sparse) | 10 | 100, 500, 1000, 2000, 5000, 10000 |
-| B (medium) | 30 | 100, 500, 1000, 2000, 5000, 10000 |
-| C (dense)  | 50 | 100, 500, 1000, 2000, 5000, 10000 |
+| A (sparso) | 10 | 100, 500, 1000, 2000, 5000, 10000 |
+| B (médio) | 30 | 100, 500, 1000, 2000, 5000, 10000 |
+| C (denso)  | 50 | 100, 500, 1000, 2000, 5000, 10000 |
 
 Instâncias sintéticas geradas com semente fixa (`SEMENTE = 42`) para reprodutibilidade.
 
@@ -71,9 +71,9 @@ Instâncias sintéticas geradas com semente fixa (`SEMENTE = 42`) para reproduti
 
 | Tipo | Correlação | Tamanhos (n_itens) |
 |------|-----------|----------------------|
-| 1 (uncorrelated)        | pesos e valores independentes | 100, 500, 1000, 2000, 5000, 10000 |
-| 2 (weakly correlated)   | correlação fraca              | 100, 500, 1000, 2000, 5000, 10000 |
-| 3 (strongly correlated) | peso_i = valor_i + k (difícil)| 100, 500, 1000, 2000, 5000, 10000 |
+| 1 (Não correlacionado)        | pesos e valores independentes | 100, 500, 1000, 2000, 5000, 10000 |
+| 2 (Fracamente correlacionado)   | correlação fraca              | 100, 500, 1000, 2000, 5000, 10000 |
+| 3 (Fortemente correlacionado) | peso_i = valor_i + k (difícil)| 100, 500, 1000, 2000, 5000, 10000 |
 
 Instâncias Pisinger (`knapPI_T_N_1000_1`). Referência: Pisinger, D. (2005). *Where are the hard knapsack problems?* Computers & Operations Research, 32(9), 2271–2284.
 
